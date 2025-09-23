@@ -172,6 +172,7 @@ module.exports = {
             'tutorials/debug-app',
             'tutorials/cloud-shell',
             'tutorials/vela-top',
+            'end-user/workflow/component-dependency-parameter.md',
             {
               type: 'category',
               label: 'Config Management',
