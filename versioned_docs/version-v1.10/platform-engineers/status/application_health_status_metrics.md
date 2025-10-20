@@ -1,5 +1,4 @@
 ---
----
 title: Application Health & Status Metrics
 ---
 
@@ -181,7 +180,6 @@ Each log entry contains:
     "services": [
       {
         "name": "frontend",
-        "type": "webservice",
         "namespace": "default",
         "cluster": "local",
         "healthy": true,
@@ -189,21 +187,7 @@ Each log entry contains:
         "details": {
           "readyReplicas": "3",
           "totalReplicas": "3"
-        },
-        "traits": [
-          {
-            "type": "ingress",
-            "healthy": true,
-            "message": "Ingress configured",
-            "details": {
-              "host": "example.com"
-            }
-          },
-          {
-            "type": "autoscaler",
-            "healthy": true
-          }
-        ]
+        }
       }
     ],
     "workflow": {
@@ -233,19 +217,11 @@ Each log entry contains:
 
 **Service Details** (for each service):
 - `name`: Service/component name
-- `type`: Component type (e.g., webservice, worker, task)
 - `namespace`: Service namespace (may differ in multi-cluster)
 - `cluster`: Target cluster name
 - `healthy`: Service health status
 - `message`: Human-readable status message
 - `details`: Additional status details (if configured)
-- `traits`: Array of trait statuses (if traits are attached)
-
-**Trait Status** (for each trait in a service):
-- `type`: Trait type (e.g., ingress, autoscaler, sidecar)
-- `healthy`: Trait health status
-- `message`: Human-readable trait status message (if available)
-- `details`: Additional trait status details (if configured)
 
 **Workflow Status**:
 - `app_revision`: Application revision
