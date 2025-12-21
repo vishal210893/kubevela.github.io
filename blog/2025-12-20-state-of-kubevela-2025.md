@@ -128,7 +128,7 @@ We welcomed **33 unique contributors** in 2025, from first-time contributors fix
 
 ### Community Meetings
 
-Our weekly community meetings continue to be a highlight. Every week, we showcase new features, review upcoming milestones, and engage in Q&A. If you haven't joined one, we'd love to see you there. Check our [community calendar](https://github.com/kubevela/community#community-meetings) for details.
+Our monthly community meetings continue to be a highlight. Each month, we showcase new features, review upcoming milestones, and engage in Q&A. If you haven't joined one, we'd love to see you there. Check our [community calendar](https://github.com/kubevela/community#community-meetings) for details.
 
 ### CNCF Incubation
 
@@ -156,7 +156,7 @@ Want to be part of the story? Here's how:
 
 - **Star us on GitHub**: [github.com/kubevela/kubevela](https://github.com/kubevela/kubevela)
 - **Join our Slack**: [#kubevela on CNCF Slack](https://cloud-native.slack.com/archives/C01BLQ3HTJA)
-- **Attend a community meeting**: Every week, all are welcome
+- **Attend a community meeting**: Every month, all are welcome
 - **Contribute**: Check out our [good first issues](https://github.com/kubevela/kubevela/labels/good%20first%20issue)
 
 Here's to making shipping applications more enjoyable. 🚀
