@@ -43,7 +43,7 @@ One of our most requested features finally landed in v1.10.3: native **StatefulS
 
 ### CueX Compiler for Templating
 
-We introduced the **CueX compiler** for component and trait templating ([#6720](https://github.com/kubevela/kubevela/pull/6720)), bringing significant performance improvements and better error messages. If you've ever struggled with cryptic CUE errors, you'll appreciate the clarity CueX brings to the debugging experience.
+Building on the CueX compiler framework originally developed for workflows, we expanded CueX support to **component and trait templating** ([#6720](https://github.com/kubevela/kubevela/pull/6720)). This extension unlocks new advanced capabilities and lays the groundwork for future templating improvements across KubeVela.
 
 ### Dependency-Aware Workflows
 
