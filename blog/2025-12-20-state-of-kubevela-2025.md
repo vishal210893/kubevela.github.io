@@ -130,6 +130,12 @@ We welcomed **33 unique contributors** in 2025, from first-time contributors fix
 
 Our monthly community meetings continue to be a highlight. Each month, we showcase new features, review upcoming milestones, and engage in Q&A. If you haven't joined one, we'd love to see you there. Check our [community calendar](https://github.com/kubevela/community#community-meetings) for details.
 
+### KubeCon North America 2025
+
+KubeCon North America 2025 in Atlanta was a milestone moment for our community. We presented [Democratizing Platform Engineering and Introducing the Component Contributor Architecture](https://www.youtube.com/watch?v=0yW79y48U3k), sharing our vision for how KubeVela enables organizations to build platforms that empower every team to contribute—not just consume.
+
+We also hosted a **Project Pavilion booth** throughout the conference, which gave us invaluable face time with the community. Platform engineers, developers, and operators from organizations of all sizes stopped by to share their experiences, challenges, and ideas for the future. These conversations are the lifeblood of open source—hearing directly from users about what's working and what needs improvement helps us build for the real world. If you visited us at the booth, thank you. Your feedback is already shaping our roadmap.
+
 ### CNCF Incubation
 
 As a CNCF Incubating project, we continue to work closely with the foundation and the broader cloud-native ecosystem. We're committed to the open governance and vendor-neutral approach that makes CNCF projects trustworthy for enterprise adoption.
