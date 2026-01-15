@@ -53,6 +53,28 @@ You can use `vela workflow restart` to restart an executing workflow.
 vela workflow restart my-app
 ```
 
+### Scheduled Restarts
+
+For automated restarts, workflows can schedule their own re-execution using the `restart-workflow` step. This enables periodic tasks, delayed execution, or time-based orchestration. See the [restart-workflow step documentation](./built-in-workflow-defs.md#restart-workflow) for examples.
+
+You can also schedule restarts by adding the `app.oam.dev/restart-workflow` annotation to an Application:
+
+```bash
+# One-time restart at specific time (RFC3339 format)
+kubectl annotate application my-app app.oam.dev/restart-workflow="2025-01-20T15:00:00Z"
+
+# Recurring restart every 24 hours
+kubectl annotate application my-app app.oam.dev/restart-workflow="24h"
+
+# Immediate restart
+kubectl annotate application my-app app.oam.dev/restart-workflow="true"
+```
+
+The annotation accepts three formats:
+- **RFC3339 timestamp**: One-time restart at the specified time
+- **Duration** (e.g., "5m", "1h", "24h"): Recurring restarts at the specified interval
+- **"true"**: Immediate restart
+
 ## Check the logs of the workflow
 
 You can use `vela workflow logs` to check the logs of the workflow.
