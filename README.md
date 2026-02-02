@@ -10,7 +10,7 @@ Welcome to join us and you are more than appreciated to contribute!
 ## Contributing to KubeVela EN Docs
 
 First, we have the source documentation of [Kubevela website](http://kubevela.io/) and it's written in English. Follow [Localization README](https://github.com/kubevela/kubevela.io#localization-readme) for contributing to other languages.
-Any files modifid here will trigger the `check-docs` Github action to run and validate the docs could be build successfully into the website.
+Any files modified here will trigger the `check-docs` Github action to run and validate the docs could be build successfully into the website.
 Any changes on these files(`docs/en/*`, `docs/en/resource/*`, `sidebars.js`) will be submitted to the corresponding locations of the repo 
 [kubevela.io](https://github.com/kubevela/kubevela.io). The Github-Action there will parse the document and publish it to the Kubevela Website automatically.
 
@@ -37,7 +37,7 @@ When you add or modify the docs, these three files(`docs/en/`, `docs/en/resource
    [the definition and template concepts](../platform-engineers/definition-and-templates)
     ```
 
-2. `docs/en/resource/`, image files are located in this folder. When you want to use link any image in documentation, 
+2. `docs/en/resource/`, image files are located in this folder. When you want to link to any image in documentation, 
    you should put the image resources here and use a relative path like below:
 
    ```markdown
