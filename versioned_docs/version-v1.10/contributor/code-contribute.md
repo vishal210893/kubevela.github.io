@@ -240,6 +240,10 @@ make e2e-test
 
 ### Debugging Locally with Remote KubeVela Environment
 
+:::tip
+For a comprehensive guide on debugging KubeVela controllers with IDE support, see [Debugging KubeVela Controllers](../platform-engineers/debug/debugging-kubeVela-controllers.md).
+:::
+
 To run vela-core locally for debugging with kubevela installed in the remote cluster:
 - Firstly, scaling the replicas of `kubevela-vela-core` to 0 for leader election of `controller-manager`:
   ```shell

@@ -694,3 +694,11 @@ Clicking the `Deploy` button to open the workflow selector dialog. You could sel
 ![dry-run-successfully](https://static.kubevela.net/images/1.5/dry-run-success.jpg)
 
 The result report is different from the CLI, there is a complete application configuration that is generated from the application metadata, you could check it. Different environments may have different application configurations.
+
+## Related Documentation
+
+- [Debugging Workflow](../platform-engineers/debug/debug.md)
+- [Debugging KubeVela Controllers](../platform-engineers/debug/debugging-kubeVela-controllers.md)
+- [Debugging with Webhook Integration](../platform-engineers/debug/debugging-kubevela-with-webhook.md)
+- [Debugging Definition](../platform-engineers/cue/definition-edit.md#debug-with-applications)
+

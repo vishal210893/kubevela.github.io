@@ -314,7 +314,7 @@ spec:
 ```  
 </details>
 
-You can also use [dry run](../debug/dry-run.md) to show what the yaml results will be rendered for debugging.
+You can also use [dry run](../../tutorials/dry-run.md) to show what the yaml results will be rendered for debugging.
 
 
 ## CUE `Context` for runtime information
