@@ -108,7 +108,7 @@ metadata:
 spec:
   schematic:
     terraform:
-      configuration: https://github.com/Guidewire/terraform-aws-dynamodb-table.git
+      configuration: https://github.com/terraform-aws-dynamodb-table.git
       type: remote
   workload:
     definition:
