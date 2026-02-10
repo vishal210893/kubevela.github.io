@@ -1,236 +1,223 @@
 ---
 title: Debugging KubeVela Controllers
-description: Learn how to debug KubeVela controllers using IDE tools
 ---
 
 # Debugging KubeVela Controllers
 
-This guide walks you through setting up a local debugging environment for KubeVela controllers. You'll learn how to configure your IDE (IntelliJ IDEA or GoLand) for effective debugging of the KubeVela core application.
-
-## Overview
-
-Debugging KubeVela controllers locally allows you to:
-- Set breakpoints in controller code
-- Step through code execution
-- Inspect variables and application state
-- Identify and fix issues more efficiently
+The KubeVela controller (`vela-core`) can be run locally as an **out-of-cluster controller** for debugging purposes. In this mode the controller process runs on your development machine and connects to a Kubernetes cluster using your local kubeconfig — giving you full IDE debugger support with breakpoints, variable inspection, and step-through execution without needing to rebuild or push a container image on every change.
 
 ## Prerequisites
 
-Before you begin, ensure you have:
+Before you begin, make sure the following are in place:
 
-1. **Development Environment**
-   - Go 1.19 or higher installed
-   - IntelliJ IDEA (Ultimate) or GoLand
-   - Git client
-   - kubectl CLI tool
+- KubeVela source code cloned from [github.com/kubevela/kubevela](https://github.com/kubevela/kubevela)
+- [Go 1.19](https://go.dev/dl/) or later installed (`go version` to verify)
+- A running Kubernetes cluster accessible via `~/.kube/config` — [k3d](https://k3d.io) is recommended for a fully local setup
+- An IDE with Go debugger support (VS Code or IntelliJ IDEA / GoLand)
 
-2. **Kubernetes Cluster**
-   - A running Kubernetes cluster (local or remote)
-   - Cluster admin access
-   - kubectl configured to access your cluster
+:::note
+The steps below use k3d for a local cluster. Any cluster reachable from your kubeconfig will work.
+:::
 
-3. **Source Code**
-   - KubeVela source code cloned locally
-   ```bash
-   git clone https://github.com/kubevela/kubevela.git
-   cd kubevela
-   ```
-
-## Step 1: Install CRDs and Definitions
-
-Before running the controller locally, you need to install the Custom Resource Definitions (CRDs) and system definitions in your cluster.
-
-### Option A: Using Make (Recommended)
+## Step 1: Create a Local Cluster
 
 ```bash
-# Install CRDs
-make install
+k3d cluster create kubevela-dev
+```
 
-# Install definitions
+## Step 2: Install KubeVela CRDs and Default Definitions
+
+Run both of the following from the root of the KubeVela repository. These commands install all base CRDs and the default resource definitions that the controller depends on.
+
+```bash
+make core-install
 make def-install
 ```
 
-### Option B: Manual Installation
+## Step 3: Configure Your IDE
 
-```bash
-# Install CRDs
-kubectl apply -f charts/vela-core/crds/
+### VS Code
 
-# Install system definitions
-kubectl apply -f charts/vela-core/templates/defwithtemplate/
+VS Code is the simplest option. Install the official [Go extension](https://marketplace.visualstudio.com/items?itemName=golang.go), which automatically sets up the `gopls` language server and the `dlv` debugger.
+
+Create `.vscode/launch.json` in the repository root:
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch vela-core",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "./cmd/core/main.go",
+      "args": [
+        "--log-debug=true"
+      ]
+    }
+  ]
+}
 ```
 
-### Verification
+Start the debugger with **Run > Start Debugging** or press `F5`.
+![img_3.png](img_3.png)
+### IntelliJ IDEA / GoLand
 
-Verify the CRDs are installed:
+1. Open **Run > Edit Configurations**.
+2. Click **+** and select **Go Build**.
+3. Set **Run kind** to `File` and point the path to `cmd/core/main.go`.
+4. Add `--log-debug=true` under **Program arguments**.
+5. Click **Apply**, then click the **Debug** button.
 
-```bash
-kubectl get crds | grep oam.dev
+![img.png](img.png)
+![img_1.png](img_1.png)
+
+## Step 4: Verify the Setup
+
+Run through both checkpoints below before writing any new code. If both pass, your environment is fully functional.
+
+### Checkpoint 1 — Breakpoint in `main()`
+
+Set a breakpoint inside the `main()` function in `cmd/core/main.go`, then start the debugger.
+
+**Expected result:** execution pauses at the breakpoint.
+
+### Checkpoint 2 — Breakpoint in `Reconcile()`
+
+Set a breakpoint inside the `Reconcile()` function in:
+
+```
+pkg/controller/core.oam.dev/v1beta1/application/application_controller.go
 ```
 
-You should see output listing KubeVela CRDs such as:
-- `applications.core.oam.dev`
-- `componentdefinitions.core.oam.dev`
-- `traitdefinitions.core.oam.dev`
-- etc.
+Then apply the following resources with `kubectl`:
 
-## Step 2: Configure Your IDE
+**ComponentDefinition**
 
-### IntelliJ IDEA / GoLand Setup
+```yaml
+apiVersion: core.oam.dev/v1beta1
+kind: ComponentDefinition
+metadata:
+  name: tf-aws-dynamodb-table
+  namespace: vela-system
+  annotations:
+    definition.oam.dev/description: "Terraform module which creates DynamoDB table on AWS"
+  labels:
+    type: terraform-aws
+spec:
+  schematic:
+    terraform:
+      configuration: https://github.com/Guidewire/terraform-aws-dynamodb-table.git
+      type: remote
+  workload:
+    definition:
+      apiVersion: terraform.core.oam.dev/v1beta1
+      kind: Configuration
+```
 
-1. **Open the Project**
-   - Launch IntelliJ IDEA or GoLand
-   - Open the KubeVela repository directory
+**Application**
 
-2. **Create a Run/Debug Configuration**
-   - Go to **Run** → **Edit Configurations**
-   - Click the **+** button and select **Go Build**
-   - Configure the following settings:
+```yaml
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  name: test
+spec:
+  components:
+    - name: test
+      type: tf-aws-dynamodb-table
+      properties:
+        name: "test"
+        hash_key: "id"
+        ttl_enabled: true
+        ttl_attribute_name: "ts"
+        autoscaling_enabled: true
+        stream_enabled: true
+        stream_view_type: "NEW_AND_OLD_IMAGES"
+        attributes:
+          - name: "id"
+            type: "N"
+        replica_regions:
+          - region_name: us-east-1
+          - region_name: us-west-1
+        tags:
+          Key: "Val"
+        policies:
+          - name: apply-once
+            type: apply-once
+            properties:
+              enable: true
+  workflow:
+    steps:
+      - name: create-dynamodb
+        type: apply-component
+        properties:
+          component: test
+```
 
-   **Configuration Name**: `KubeVela Core`
-   
-   **Run kind**: `File`
-   
-   **Files**: Select `cmd/core/main.go`
-   
-   **Working directory**: Your KubeVela repository root
-   
-   **Environment variables** (optional):
-   ```
-   KUBECONFIG=/path/to/your/kubeconfig
-   ```
+**Expected result:** applying the Application triggers a reconcile loop and execution pauses at the `Reconcile()` breakpoint.
 
-3. **Apply and Save**
-   - Click **Apply** and then **OK**
+:::tip Network issues on managed laptops
+If Checkpoint 1 passes but Checkpoint 2 does not, the reconciler may be unable to reach the cluster due to network restrictions (common on corporate devices). Checkpoint 1 alone is still sufficient for debugging most controller logic that does not require live cluster interaction.
 
-## Step 3: Start the Controller in Debug Mode
+:::
 
-### Set Breakpoints
+## Step 5: Run Unit Tests
 
-1. Navigate to the file you want to debug (e.g., a controller file)
-2. Click in the gutter next to the line number where you want to pause execution
-3. A red dot will appear indicating a breakpoint is set
+To run the full controller unit test suite locally:
 
-### Start Debugging
-
-1. Click the **Debug** icon (bug icon) in the toolbar, or
-2. Press **Shift + F9** (macOS/Linux) or **Ctrl + Shift + F9** (Windows)
-3. Select your **KubeVela Core** configuration
-
-The controller will start and connect to your Kubernetes cluster. When code execution reaches a breakpoint, the IDE will pause and allow you to inspect the state.
-
-## Step 4: Debugging Workflow
-
-### Common Debugging Tasks
-
-1. **Inspect Variables**
-   - When paused at a breakpoint, hover over variables to see their values
-   - Use the **Variables** panel to view all variables in scope
-
-2. **Step Through Code**
-   - **Step Over** (F8): Execute the current line and move to the next
-   - **Step Into** (F7): Enter into function calls
-   - **Step Out** (Shift + F8): Exit the current function
-
-3. **Evaluate Expressions**
-   - While paused, open the **Evaluate Expression** window (Alt + F8)
-   - Enter Go expressions to evaluate in the current context
-
-4. **Continue Execution**
-   - Click **Resume Program** (F9) to continue until the next breakpoint
-
-### Example: Debugging an Application Controller
-
-1. Set a breakpoint in the Application controller's reconcile function:
-   - File: `pkg/controller/core.oam.dev/v1beta1/application/application_controller.go`
-   - Function: `Reconcile`
-
-2. Apply a test application:
-   ```bash
-   kubectl apply -f examples/app-basic.yaml
-   ```
-
-3. The debugger will pause at your breakpoint when the controller processes the application
-
-4. Inspect the `req` (reconcile request) and examine the application being processed
-
-## Step 5: Working with Kubeconfig
-
-### Using Custom Kubeconfig
-
-If you need to use a specific kubeconfig file:
-
-1. **Set Environment Variable in IDE**
-   - Edit your run configuration
-   - Add to **Environment variables**:
-   ```
-   KUBECONFIG=/path/to/your/kubeconfig
-   ```
-
-2. **Or Export in Terminal**
-   ```bash
-   export KUBECONFIG=/path/to/your/kubeconfig
-   ```
-
-### Multiple Cluster Contexts
-
-To switch between different cluster contexts:
+**1. Download the Kubernetes server binaries for your platform:**
 
 ```bash
-# List available contexts
-kubectl config get-contexts
+# Example for Linux amd64
+curl -L -O https://dl.k8s.io/v1.29.0/kubernetes-server-linux-amd64.tar.gz
+```
 
-# Switch context
-kubectl config use-context <context-name>
+Refer to [https://cdn.dl.k8s.io](https://cdn.dl.k8s.io) for available versions and platforms.
+
+**2. Extract and copy the required binaries:**
+
+```bash
+tar -xzf kubernetes-server-linux-amd64.tar.gz
+sudo mkdir -p /usr/local/kubebuilder/bin
+sudo cp kubernetes/server/bin/kube-apiserver /usr/local/kubebuilder/bin/
+sudo cp kubernetes/server/bin/kubectl /usr/local/kubebuilder/bin/
+```
+
+**3. Download `etcd` and place it in the same directory:**
+
+```bash
+sudo cp /path/to/etcd /usr/local/kubebuilder/bin/
+```
+
+**4. Run the test suite:**
+
+```bash
+make test
 ```
 
 ## Troubleshooting
 
-### Controller Won't Start
+| Symptom | Likely cause | Resolution |
+|---|---|---|
+| Checkpoint 1 fails | Go extension or `dlv` not installed | Install the VS Code Go extension; run `go install github.com/go-delve/delve/cmd/dlv@latest` |
+| Checkpoint 2 never pauses | Network restrictions blocking controller–cluster communication | Expected on some corporate networks; Checkpoint 1 is sufficient for most work |
+| `make core-install` fails | CRDs already present from a previous install | Run `make core-uninstall` first, then retry |
+| `make test` fails immediately | Missing kubebuilder binaries | Ensure `kube-apiserver` and `etcd` are in `/usr/local/kubebuilder/bin/` |
 
-**Problem**: Controller fails to start with authentication errors
+## Further Reading
 
-**Solution**: Verify your kubeconfig is correct and you have cluster access:
-```bash
-kubectl cluster-info
-kubectl get nodes
-```
+- [Extending the Kubernetes API](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/)
+- [KubeBuilder Documentation](https://book.kubebuilder.io/)
+- [Kubernetes Controller Runtime](https://pkg.go.dev/sigs.k8s.io/controller-runtime)
+- [KubeVela Developer Guide](https://kubevela.io/docs/contributor/overview)
 
-### Breakpoints Not Hit
+---
 
-**Problem**: Code execution doesn't pause at breakpoints
+## Related Documentation
 
-**Solution**: 
-- Ensure you're running in Debug mode, not Run mode
-- Verify the breakpoint is on an executable line (not a comment or blank line)
-- Check that the code path is actually being executed
-
-### Port Already in Use
-
-**Problem**: Error about port 9443 (webhook port) already in use
-
-**Solution**: 
-- Check if another instance is running: `ps aux | grep core`
-- Kill the existing process or change the webhook port in the configuration
-
-## Best Practices
-
-1. **Start with CRDs**: Always ensure CRDs are installed before starting the controller
-2. **Use Separate Test Cluster**: Debug against a test cluster, not production
-3. **Clean State**: Restart the debugger if you make code changes
-4. **Log Levels**: Increase log verbosity for more debugging information
-5. **Test Resources**: Use simple test manifests to reproduce issues
-
-## Next Steps
-
-- For debugging with webhooks enabled, see [Debugging KubeVela with Webhook Integration](./debugging-kubevela-with-webhook.md)
-- Learn about [Application Debugging](debug.md) for debugging deployed applications
-- Explore [Dry Run](dry-run.md) for testing without actually applying changes
-
-## Additional Resources
-
-- [KubeVela Development Guide](../../contributor/code-contribute.md)
-- [Controller Runtime Documentation](https://pkg.go.dev/sigs.k8s.io/controller-runtime)
-- [Go Debugging in IntelliJ](https://www.jetbrains.com/help/idea/debugging-go-code.html)
-
+- [Debugging Workflow](./debug.md)
+- [Debugging Definition](../cue/definition-edit.md#debug-with-applications)
+- [Debugging with Dry-Run](../../tutorials/dry-run.md)
+- [Debugging with Webhook Integration](./debugging-kubevela-with-webhook.md)

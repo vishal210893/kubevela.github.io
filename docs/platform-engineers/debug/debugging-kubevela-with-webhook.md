@@ -79,15 +79,6 @@ IP.1 = {HOST_IP}
 
 Replace `{HOST_IP}` with your machine's IP address.
 
-:::tip Finding Your IP Address on macOS
-1. Open **System Settings**
-2. Select **Network**
-3. Choose your active network connection
-4. Click **Advanced**
-5. Navigate to the **TCP/IP** tab
-6. Your IP address is displayed under **IPv4 Address**
-:::
-
 ### 1.4 Generate Webhook Certificate and Key
 
 ```bash
@@ -112,6 +103,8 @@ Ensure the `k8s-webhook-server/serving-certs` directory contains:
 - `ca.crt`
 - `tls.crt`
 - `tls.key`
+
+![img_2.png](img_2.png)
 
 ## Step 2: Enable Webhook in Source Code
 
@@ -139,6 +132,7 @@ WebhookPort: 9445,
 If you're using Rancher Desktop or other tools that occupy port 9443, change `WebhookPort` to an available port (e.g., 9445).
 :::
 
+![img_4.png](img_4.png)
 ## Step 3: Start the Controller in Debug Mode
 
 Configure your IDE to run the controller in debug mode. See [Debugging KubeVela Controllers](./debugging-kubeVela-controllers.md) for detailed IDE setup instructions.
@@ -195,60 +189,64 @@ metadata:
   annotations:
     meta.helm.sh/release-name: kubevela
     meta.helm.sh/release-namespace: vela-system
+  creationTimestamp: "2025-02-26T15:01:29Z"
+  generation: 2
   labels:
     app.kubernetes.io/managed-by: Helm
   name: kubevela-vela-core-admission
+  resourceVersion: "984"
+  uid: 2bed9c1b-efd2-4a9e-a2ff-db1ebca099f5
 webhooks:
-- admissionReviewVersions:
-  - v1beta1
-  - v1
-  clientConfig:
-    caBundle: <BASE64_ENCODED_CA_CERT>
-    url: "https://<HOST_IP>:<PORT>/mutating-core-oam-dev-v1beta1-applications"
-  failurePolicy: Fail
-  matchPolicy: Equivalent
-  name: mutating.core.oam.dev.v1beta1.applications
-  namespaceSelector: {}
-  objectSelector: {}
-  reinvocationPolicy: Never
-  rules:
-  - apiGroups:
-    - core.oam.dev
-    apiVersions:
-    - v1beta1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - applications
-    scope: '*'
-  sideEffects: None
-  timeoutSeconds: 10
-- admissionReviewVersions:
-  - v1beta1
-  - v1
-  clientConfig:
-    caBundle: <BASE64_ENCODED_CA_CERT>
-    url: "https://<HOST_IP>:<PORT>/mutating-core-oam-dev-v1beta1-componentdefinitions"
-  failurePolicy: Fail
-  matchPolicy: Equivalent
-  name: mutating.core.oam.dev.v1beta1.componentdefinitions
-  namespaceSelector: {}
-  objectSelector: {}
-  reinvocationPolicy: Never
-  rules:
-  - apiGroups:
-    - core.oam.dev
-    apiVersions:
-    - v1beta1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - componentdefinitions
-    scope: '*'
-  sideEffects: None
-  timeoutSeconds: 10
+  - admissionReviewVersions:
+      - v1beta1
+      - v1
+    clientConfig:
+      caBundle: <Base64 string from ca.crt.b64>
+      url: "https://<your-local-webhook-url>:<port>/mutating-core-oam-dev-v1beta1-applications"
+    failurePolicy: Fail
+    matchPolicy: Equivalent
+    name: mutating.core.oam.dev.v1beta1.applications
+    namespaceSelector: {}
+    objectSelector: {}
+    reinvocationPolicy: Never
+    rules:
+      - apiGroups:
+          - core.oam.dev
+        apiVersions:
+          - v1beta1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - applications
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 10
+  - admissionReviewVersions:
+      - v1beta1
+      - v1
+    clientConfig:
+      caBundle: <Base64 string from ca.crt.b64>
+      url: "https://<your-local-webhook-url>:<port>/mutating-core-oam-dev-v1beta1-componentdefinitions"
+    failurePolicy: Fail
+    matchPolicy: Equivalent
+    name: mutating.core.oam-dev.v1beta1.componentdefinitions
+    namespaceSelector: {}
+    objectSelector: {}
+    reinvocationPolicy: Never
+    rules:
+      - apiGroups:
+          - core.oam.dev
+        apiVersions:
+          - v1beta1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - componentdefinitions
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 10
 ```
 
 ### 4.4 Create Validating Webhook Configuration
@@ -262,106 +260,110 @@ metadata:
   annotations:
     meta.helm.sh/release-name: kubevela
     meta.helm.sh/release-namespace: vela-system
+  creationTimestamp: "2025-02-26T15:01:29Z"
+  generation: 2
   labels:
     app.kubernetes.io/managed-by: Helm
   name: kubevela-vela-core-admission
+  resourceVersion: "983"
+  uid: fcfc8323-112d-47d4-b0af-93f4aaf2c664
 webhooks:
-- admissionReviewVersions:
-  - v1beta1
-  - v1
-  clientConfig:
-    caBundle: <BASE64_ENCODED_CA_CERT>
-    url: "https://<HOST_IP>:<PORT>/validating-core-oam-dev-v1beta1-traitdefinitions"
-  failurePolicy: Fail
-  matchPolicy: Equivalent
-  name: validating.core.oam.dev.v1beta1.traitdefinitions
-  namespaceSelector: {}
-  objectSelector: {}
-  rules:
-  - apiGroups:
-    - core.oam.dev
-    apiVersions:
-    - v1beta1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - traitdefinitions
-    scope: '*'
-  sideEffects: None
-  timeoutSeconds: 5
-- admissionReviewVersions:
-  - v1beta1
-  - v1
-  clientConfig:
-    caBundle: <BASE64_ENCODED_CA_CERT>
-    url: "https://<HOST_IP>:<PORT>/validating-core-oam-dev-v1beta1-applications"
-  failurePolicy: Fail
-  matchPolicy: Equivalent
-  name: validating.core.oam.dev.v1beta1.applications
-  namespaceSelector: {}
-  objectSelector: {}
-  rules:
-  - apiGroups:
-    - core.oam.dev
-    apiVersions:
-    - v1beta1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - applications
-    scope: '*'
-  sideEffects: None
-  timeoutSeconds: 10
-- admissionReviewVersions:
-  - v1beta1
-  - v1
-  clientConfig:
-    caBundle: <BASE64_ENCODED_CA_CERT>
-    url: "https://<HOST_IP>:<PORT>/validating-core-oam-dev-v1beta1-componentdefinitions"
-  failurePolicy: Fail
-  matchPolicy: Equivalent
-  name: validating.core.oam.dev.v1beta1.componentdefinitions
-  namespaceSelector: {}
-  objectSelector: {}
-  rules:
-  - apiGroups:
-    - core.oam.dev
-    apiVersions:
-    - v1beta1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - componentdefinitions
-    scope: '*'
-  sideEffects: None
-  timeoutSeconds: 10
-- admissionReviewVersions:
-  - v1beta1
-  - v1
-  clientConfig:
-    caBundle: <BASE64_ENCODED_CA_CERT>
-    url: "https://<HOST_IP>:<PORT>/validating-core-oam-dev-v1beta1-policydefinitions"
-  failurePolicy: Fail
-  matchPolicy: Equivalent
-  name: validating.core.oam.dev.v1beta1.policydefinitions
-  namespaceSelector: {}
-  objectSelector: {}
-  rules:
-  - apiGroups:
-    - core.oam.dev
-    apiVersions:
-    - v1beta1
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - policydefinitions
-    scope: '*'
-  sideEffects: None
-  timeoutSeconds: 10
+  - admissionReviewVersions:
+      - v1beta1
+      - v1
+    clientConfig:
+      caBundle: <Base64 string from ca.crt.b64>
+      url: "https://<your-local-webhook-url>:<port>/validating-core-oam-dev-v1beta1-traitdefinitions"
+    failurePolicy: Fail
+    matchPolicy: Equivalent
+    name: validating.core.oam.dev.v1beta1.traitdefinitions
+    namespaceSelector: {}
+    objectSelector: {}
+    rules:
+      - apiGroups:
+          - core.oam.dev
+        apiVersions:
+          - v1beta1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - traitdefinitions
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 5
+  - admissionReviewVersions:
+      - v1beta1
+      - v1
+    clientConfig:
+      caBundle: <Base64 string from ca.crt.b64>
+      url: "https://<your-local-webhook-url>:<port>/validating-core-oam-dev-v1beta1-applications"
+    failurePolicy: Fail
+    matchPolicy: Equivalent
+    name: validating.core.oam.dev.v1beta1.applications
+    namespaceSelector: {}
+    objectSelector: {}
+    rules:
+      - apiGroups:
+          - core.oam.dev
+        apiVersions:
+          - v1beta1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - applications
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 10
+  - admissionReviewVersions:
+      - v1beta1
+      - v1
+    clientConfig:
+      caBundle: <Base64 string from ca.crt.b64>
+      url: "https://<your-local-webhook-url>:<port>/validating-core-oam-dev-v1beta1-componentdefinitions"
+    failurePolicy: Fail
+    matchPolicy: Equivalent
+    name: validating.core.oam-dev.v1beta1.componentdefinitions
+    namespaceSelector: {}
+    objectSelector: {}
+    rules:
+      - apiGroups:
+          - core.oam.dev
+        apiVersions:
+          - v1beta1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - componentdefinitions
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 10
+  - admissionReviewVersions:
+      - v1beta1
+      - v1
+    clientConfig:
+      caBundle: <Base64 string from ca.crt.b64>
+      url: "https://<your-local-webhook-url>:<port>/validating-core-oam-dev-v1beta1-policydefinitions"
+    failurePolicy: Fail
+    matchPolicy: Equivalent
+    name: validating.core.oam-dev.v1beta1.policydefinitions
+    namespaceSelector: {}
+    objectSelector: {}
+    rules:
+      - apiGroups:
+          - core.oam.dev
+        apiVersions:
+          - v1beta1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - policydefinitions
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 10
 ```
 
 ### 4.5 Update Configuration Values
@@ -440,6 +442,7 @@ When you apply the manifest, the webhook is triggered and execution will pause a
 - Examine the admission request
 - Test validation logic
 
+![img_5.png](img_5.png)
 ## Automated Setup Script
 
 To automate the entire setup process, use the following script.
@@ -456,6 +459,9 @@ To automate the entire setup process, use the following script.
 ```bash
 # Navigate to KubeVela root directory
 cd path/to/kubevela
+
+# Execute the script ( It will take you system ip dynamically and configured port )
+./setup-kubevela-debugger.sh
 
 # Execute the script with your system IP and port
 ./setup-kubevela-debugger.sh <IP_ADDRESS> <PORT>
@@ -481,9 +487,9 @@ set -euo pipefail
 # Script: setup-kubevela-debugger.sh
 # Purpose: Install and configure the KubeVela controller in debug mode
 #          with webhooks, using the provided IP and port, generate certs,
-#          update code options, and deploy the webhook configurations.
+#          update code options, and deploy the webhook secret and configurations.
 # Usage:   ./setup-kubevela-debugger.sh <IP_ADDRESS> <PORT>
-# Example: ./setup-kubevela-debugger.sh 192.168.1.100 9445
+# Example: ./setup-kubevela-debugger.sh 192.168.1.100 9090
 #
 # NOTE: This script must be run from the root of the kubevela repository!
 #===============================================================================
@@ -494,11 +500,11 @@ usage() {
 Usage: $0 <IP_ADDRESS> <PORT>
 
 Installs/configures the KubeVela controller in debug mode with webhooks.
-  <IP_ADDRESS>   IP the controller will bind to (e.g. 192.168.1.100)
-  <PORT>         Port the controller will listen on (e.g. 9445)
+  <IP_ADDRESS>   IP the controller will bind to (e.g. 10.0.01)
+  <PORT>         Port the controller will listen on (e.g. 9443)
 
 Example:
-  $0 192.168.1.100 9445
+  $0 192.168.1.100 9090
 EOF
   exit 1
 }
@@ -538,6 +544,7 @@ echo "➔ Using Port: ${PORT}"
 echo
 
 #--- STEP 3: Ensure script is run from kubevela repo root ----------------------
+# Check for key files that should exist in the kubevela repo root
 if [[ ! -f "go.mod" ]] || [[ ! -f "Makefile" ]] || [[ ! -d "cmd/core" ]]; then
   echo "ERROR: Script must run from the root of the kubevela repository."
   echo "       Expected files/directories not found: go.mod, Makefile, cmd/core"
@@ -798,8 +805,6 @@ webhooks:
   timeoutSeconds: 10
 EOF
 popd >/dev/null
-
-echo "==> Manifest files created"
 
 #--- STEP 13: Apply webhook configurations -------------------------------------
 echo "==> STEP 13: Apply webhook configuration manifests"
