@@ -133,6 +133,10 @@ module.exports = {
             'end-user/workflow/inputs-outputs',
             'end-user/workflow/if-condition',
             'end-user/workflow/timeout',
+            'platform-engineers/debug/debug',
+            'platform-engineers/debug/debugging-kubeVela-controllers',
+            'platform-engineers/debug/debugging-kubevela-with-webhook',
+            'platform-engineers/debug/remote-debugging-kubevela-applications',
           ],
         },
         {
@@ -342,14 +346,6 @@ module.exports = {
             'contributor/release-process',
             'contributor/code-conventions',
             'contributor/principle-of-test',
-          ],
-        },
-        {
-          'Debug': [
-            'platform-engineers/debug/debugging-kubeVela-controllers',
-            'platform-engineers/debug/debugging-kubevela-with-webhook',
-            'platform-engineers/debug/remote-debugging-kubevela-applications',
-            'platform-engineers/debug/multicluster-debugging',
           ],
         },
       ],
